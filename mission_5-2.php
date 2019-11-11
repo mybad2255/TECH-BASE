@@ -12,19 +12,30 @@
 		." ("
 		. "id INT AUTO_INCREMENT PRIMARY KEY,"
 		. "name char(32),"
-		. "comment TEXT"
+		. "comment TEXT,"
+		. "pass TEXT"
 		.");";
 		$stmt = $pdo->query($sql);
 	if (isset($_POST['send1'])) {
 		if(!empty($_POST['name'])){
 			if(!empty($_POST['comment'])){
-				if(!empty($_POST['pass1'])){
-					if($_POST['pass1'] !="pass"){
-					echo "パスワードが違います。";
-					}
+				if(empty($_POST['pass1'])){
+				echo "パスワードを入力してください。"."<br>";
 				}
 				else{
-				echo "パスワードを入力してください。"."<br>";
+					if(!empty($_POST['edit'])){
+					$sql = 'SELECT * FROM tbtest';
+					$stmt = $pdo->query($sql);
+					$results = $stmt->fetchAll();
+						foreach ($results as $row){
+							if($row['id'] === $_POST['edit']){
+							$pass1 = $row['pass'];
+							}
+						}
+						if($_POST['pass1'] !== $pass1){
+						echo "パスワードが違います。";
+						}
+					}
 				}
 			}
 			else{
@@ -38,7 +49,15 @@
 	if (isset($_POST['send2'])) {
 		if(!empty($_POST['deletenumber'])){
 			if(!empty($_POST['pass2'])){
-				if($_POST['pass2'] !="pass"){
+			$sql = 'SELECT * FROM tbtest';
+			$stmt = $pdo->query($sql);
+			$results = $stmt->fetchAll();
+				foreach ($results as $row){
+					if($row['id'] === $_POST['deletenumber']){
+					$pass2 = $row['pass'];
+					}
+				}
+				if($_POST['pass2'] !== $pass2){
 				echo "パスワードが違います。";
 				}
 			}
@@ -53,7 +72,15 @@
 	if (isset($_POST['send3'])) {
 		if(!empty($_POST['editnumber'])){
 			if(!empty($_POST['pass3'])){
-				if($_POST['pass3'] =="pass"){
+			$sql = 'SELECT * FROM tbtest';
+			$stmt = $pdo->query($sql);
+			$results = $stmt->fetchAll();
+				foreach ($results as $row){
+					if($row['id'] === $_POST['editnumber']){
+					$pass3 = $row['pass'];
+					}
+				}
+				if($_POST['pass3'] === $pass3){
 				$editnumber = $_POST['editnumber'];
 				$sql = 'SELECT * FROM tbtest';
 				$stmt = $pdo->query($sql);
@@ -102,41 +129,52 @@
 		." ("
 		. "id INT AUTO_INCREMENT PRIMARY KEY,"
 		. "name char(32),"
-		. "comment TEXT"
+		. "comment TEXT,"
+		. "pass TEXT"
 		.");";
-		$stmt = $pdo->query($sql);
 	if (isset($_POST['send1'])) {
 		if(!empty($_POST['name'])){
 			if(!empty($_POST['comment'])){
 				if(!empty($_POST['pass1'])){
-					if($_POST['pass1'] =="pass"){
-						if(empty($_POST['edit'])){
-						$sql = $pdo -> prepare("INSERT INTO tbtest (name, comment) VALUES (:name, :comment)");
-						$sql -> bindParam(':name', $name, PDO::PARAM_STR);
-						$sql -> bindParam(':comment', $comment, PDO::PARAM_STR);
-						$name = $_POST['name'];
-						$comment = $_POST['comment'];
-						$pass1 = $_POST['pass1'];
-						$sql -> execute();
-						$sql = 'SELECT * FROM tbtest';
-						$stmt = $pdo->query($sql);
-						$results = $stmt->fetchAll();
-							foreach ($results as $row){
-							echo $row['id'].',';
-							echo $row['name'].',';
-							echo $row['comment'].'<br>';
-							echo "<hr>";
+					if(empty($_POST['edit'])){
+					$sql = $pdo -> prepare("INSERT INTO tbtest (name, comment, pass) VALUES (:name, :comment, :pass)");
+					$sql -> bindParam(':name', $name, PDO::PARAM_STR);
+					$sql -> bindParam(':comment', $comment, PDO::PARAM_STR);
+					$sql -> bindParam(':pass', $pass, PDO::PARAM_STR);
+					$name = $_POST['name'];
+					$comment = $_POST['comment'];
+					$pass = $_POST['pass1'];
+					$sql -> execute();
+					$sql = 'SELECT * FROM tbtest';
+					$stmt = $pdo->query($sql);
+					$results = $stmt->fetchAll();
+						foreach ($results as $row){
+						echo $row['id'].',';
+						echo $row['name'].',';
+						echo $row['comment'].'<br>';
+						echo "<hr>";
+						}
+					}
+					else{
+					$sql = 'SELECT * FROM tbtest';
+					$stmt = $pdo->query($sql);
+					$results = $stmt->fetchAll();
+						foreach ($results as $row){
+							if($row['id'] === $_POST['edit']){
+							$pass1 = $row['pass'];
 							}
 						}
-						else{
+						if($_POST['pass1'] === $pass1){
 						$id = $_POST['edit'];
 						$name = $_POST['name'];
 						$comment = $_POST['comment'];
-						$sql = 'update tbtest set name=:name,comment=:comment where id=:id';
+						$pass = $_POST['pass1'];
+						$sql = 'update tbtest set name=:name,comment=:comment,pass=:pass where id=:id';
 						$stmt = $pdo->prepare($sql);
 						$stmt->bindParam(':name', $name, PDO::PARAM_STR);
 						$stmt->bindParam(':comment', $comment, PDO::PARAM_STR);
 						$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+						$stmt -> bindParam(':pass', $pass, PDO::PARAM_STR);
 						$stmt->execute();
 						$sql = 'SELECT * FROM tbtest';
 						$stmt = $pdo->query($sql);
@@ -148,16 +186,16 @@
 							echo "<hr>";
 							}
 						}
-					}
-					else{
-					$sql = 'SELECT * FROM tbtest';
-					$stmt = $pdo->query($sql);
-					$results = $stmt->fetchAll();
-						foreach ($results as $row){
-						echo $row['id'].',';
-						echo $row['name'].',';
-						echo $row['comment'].'<br>';
-						echo "<hr>";
+						else{
+						$sql = 'SELECT * FROM tbtest';
+						$stmt = $pdo->query($sql);
+						$results = $stmt->fetchAll();
+							foreach ($results as $row){
+							echo $row['id'].',';
+							echo $row['name'].',';
+							echo $row['comment'].'<br>';
+							echo "<hr>";
+							}
 						}
 					}
 				}
@@ -165,7 +203,7 @@
 				$sql = 'SELECT * FROM tbtest';
 				$stmt = $pdo->query($sql);
 				$results = $stmt->fetchAll();
-					foreach ($results as $row){	
+					foreach ($results as $row){
 					echo $row['id'].',';
 					echo $row['name'].',';
 					echo $row['comment'].'<br>';
@@ -200,7 +238,15 @@
 	if (isset($_POST['send2'])) {
 		if(!empty($_POST['deletenumber'])){
 			if(!empty($_POST['pass2'])){
-				if($_POST['pass2'] =="pass"){
+			$sql = 'SELECT * FROM tbtest';
+			$stmt = $pdo->query($sql);
+			$results = $stmt->fetchAll();
+				foreach ($results as $row){
+					if($row['id'] === $_POST['deletenumber']){
+					$pass2 = $row['pass'];
+					}
+				}
+				if($_POST['pass2'] === $pass2){
 				$id = $_POST['deletenumber'];
 				$sql = 'delete from tbtest where id=:id';
 				$stmt = $pdo->prepare($sql);
@@ -253,40 +299,14 @@
 		}
 	}
 	if (isset($_POST['send3'])) {
-		if(!empty($_POST['editnumber'])){
-			if(!empty($_POST['pass3'])){
-			$sql = 'SELECT * FROM tbtest';
-			$stmt = $pdo->query($sql);
-			$results = $stmt->fetchAll();
-				foreach ($results as $row){	
-				echo $row['id'].',';
-				echo $row['name'].',';
-				echo $row['comment'].'<br>';
-				echo "<hr>";
-				}
-			}
-			else{
-			$sql = 'SELECT * FROM tbtest';
-			$stmt = $pdo->query($sql);
-			$results = $stmt->fetchAll();
-				foreach ($results as $row){
-				echo $row['id'].',';
-				echo $row['name'].',';
-				echo $row['comment'].'<br>';
-				echo "<hr>";
-				}
-			}
-		}
-		else{
-		$sql = 'SELECT * FROM tbtest';
-		$stmt = $pdo->query($sql);
-		$results = $stmt->fetchAll();
-			foreach ($results as $row){
-			echo $row['id'].',';
-			echo $row['name'].',';
-			echo $row['comment'].'<br>';
-			echo "<hr>";
-			}
+	$sql = 'SELECT * FROM tbtest';
+	$stmt = $pdo->query($sql);
+	$results = $stmt->fetchAll();
+		foreach ($results as $row){
+		echo $row['id'].',';
+		echo $row['name'].',';
+		echo $row['comment'].'<br>';
+		echo "<hr>";
 		}
 	}
 	?>
